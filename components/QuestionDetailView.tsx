@@ -112,7 +112,7 @@ export default function QuestionDetailView({ question }: QuestionDetailProps) {
               <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium border border-slate-200">
                 {question.category}
               </span>
-              {question.tags.map(t => (
+              {question.tags.split(',').map(t => t.trim()).filter(Boolean).map(t => (
                 <span key={t} className="px-2 py-0.5 bg-slate-50 text-slate-400 text-xs font-mono rounded border border-slate-100">
                   {t}
                 </span>
@@ -147,32 +147,41 @@ export default function QuestionDetailView({ question }: QuestionDetailProps) {
       {/* Two-Column Grid of Coding Workzone */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-[1280px] mx-auto px-4 items-start">
         
-        {/* Left Column: Problem statement blueprint */}
+        {/* Left Column: Question metadata and study tips */}
         <section className="bg-white border border-slate-200/80 p-6 md:p-8 rounded-2xl shadow-sm space-y-6">
           <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-md md:text-lg font-bold text-brand-primary">Mô tả vấn đề</h2>
+            <h2 className="text-md md:text-lg font-bold text-brand-primary">Thông tin câu hỏi</h2>
           </div>
 
           <div className="text-slate-600 text-sm leading-relaxed space-y-4 font-normal">
-            <p>{question.description}</p>
-            
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider pt-2">Yêu cầu phỏng vấn:</h3>
-            <ul className="list-disc pl-5 space-y-2 text-slate-500">
-              {question.requirements.map((req, i) => (
-                <li key={i}>{req}</li>
-              ))}
+            <div className="grid grid-cols-3 gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Chủ đề</span>
+                <span className="text-sm font-semibold text-slate-800">{question.category}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Độ khó</span>
+                <span className="text-sm font-semibold text-slate-800">{question.difficulty}</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Thẻ tags</span>
+                <span className="text-xs font-semibold text-slate-500 font-mono truncate block" title={question.tags}>
+                  {question.tags}
+                </span>
+              </div>
+            </div>
+
+            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider pt-2">Lời khuyên ôn luyện:</h3>
+            <ul className="list-disc pl-5 space-y-2 text-slate-500 text-xs">
+              <li>Đọc kỹ câu hỏi và tự trả lời nháp trước khi bấm xem đáp án chính thức.</li>
+              <li>Thấu hiểu các cơ chế, kiến trúc đằng sau thay vì học vẹt dòng code.</li>
+              <li>Thử đặt mình dưới góc nhìn của nhà tuyển dụng khi trình bày câu hỏi này.</li>
             </ul>
 
             <div className="p-4 bg-slate-50 border-l-4 border-brand-primary rounded-r-xl my-6">
               <p className="italic text-xs text-slate-500">
                 &ldquo;Hiểu sâu sắc kỹ thuật phản xạ là chiếc chìa khóa để kiến thiết nên các giải pháp kỹ thuật có giá trị bền vững và tính mở rộng tuyệt vời.&rdquo;
               </p>
-            </div>
-
-            {/* Display Input code mockup */}
-            <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider">Mô tả cấu trúc:</h3>
-            <div className="bg-brand-primary text-slate-300 p-4 rounded-xl font-mono text-xs overflow-x-auto shadow-inner relative max-h-72">
-              <pre><code>{question.codeSnippet}</code></pre>
             </div>
           </div>
         </section>
@@ -185,7 +194,7 @@ export default function QuestionDetailView({ question }: QuestionDetailProps) {
             <div className="flex items-center justify-between px-5 py-3.5 bg-slate-50 border-b border-slate-100 select-none">
               <div className="flex gap-2 items-center text-slate-600">
                 <CodeIcon className="w-4 h-4" />
-                <span className="font-semibold text-xs tracking-tight">Giải pháp &amp; Tài liệu</span>
+                <span className="font-semibold text-xs tracking-tight">Đáp án ôn luyện</span>
               </div>
               <div className="flex gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-rose-400/80" />
@@ -202,22 +211,22 @@ export default function QuestionDetailView({ question }: QuestionDetailProps) {
                   animate={{ scale: 1 }}
                   className="max-w-sm flex flex-col items-center"
                 >
-                  <div className="w-16 h-16 bg-slate-55 text-slate-700 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
+                  <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-5 shadow-sm">
                     <Terminal className="w-8 h-8 text-brand-primary" />
                   </div>
-                  <h3 className="font-bold text-md text-brand-primary mb-2">Sẵn sàng phân tích giải pháp?</h3>
+                  <h3 className="font-bold text-md text-brand-primary mb-2">Sẵn sàng xem đáp án?</h3>
                   <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                    Mở khóa đề án giải đáp chuẩn chỉ, bóc tách thuật toán và các mô hình viết code hiệu quả nhất được chấm điểm bởi chuyên gia.
+                    Bấm nút bên dưới để mở khóa đáp án chi tiết và củng cố tư duy lập trình chuyên sâu.
                   </p>
                   <button
                     onClick={() => {
                       setShowSolution(true);
-                      showToast("Đã mở khóa tài liệu giải thích phỏng vấn!");
+                      showToast("Đã mở khóa đáp án ôn luyện!");
                     }}
                     className="cursor-pointer bg-brand-primary text-white px-8 py-3 rounded-xl font-bold text-xs hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95"
                     id="reveal_solution_btn"
                   >
-                    Xem lời giải
+                    Xem đáp án
                   </button>
                 </motion.div>
               ) : (
@@ -229,24 +238,13 @@ export default function QuestionDetailView({ question }: QuestionDetailProps) {
                   <div className="mb-6 p-4 bg-emerald-50 text-emerald-800 rounded-xl flex items-start gap-3 border border-emerald-100">
                     <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider">Đã hiển thị lời giải chi tiết</h4>
-                      <p className="text-[11px] text-emerald-700 mt-1">Lược dịch tư duy và định hướng cách thức thuyết trình trước mặt nhà tuyển dụng.</p>
+                      <h4 className="text-xs font-bold uppercase tracking-wider">Đã hiển thị đáp án</h4>
+                      <p className="text-[11px] text-emerald-700 mt-1">Đọc và suy ngẫm giải pháp tối ưu cho câu hỏi này.</p>
                     </div>
                   </div>
 
-                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Tổng quan giải pháp:</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed mb-4">{question.solution.overview}</p>
-
-                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Quy trình thực thi:</h3>
-                  <ol className="list-decimal pl-5 space-y-2 text-xs text-slate-500 mb-6 font-normal">
-                    {question.solution.steps.map((st, sIdx) => (
-                      <li key={sIdx}>{st}</li>
-                    ))}
-                  </ol>
-
-                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider mb-2">Lời giải đề xuất:</h3>
-                  <div className="bg-brand-primary text-slate-300 p-4 rounded-xl font-mono text-xs overflow-x-auto shadow-inner relative max-h-72 mb-4">
-                    <pre><code>{question.solution.codeSnippet}</code></pre>
+                  <div className="bg-slate-50 text-slate-800 p-5 rounded-xl text-xs overflow-y-auto relative max-h-[400px] mb-2 border border-slate-200 shadow-inner">
+                    <p className="whitespace-pre-wrap leading-relaxed text-slate-700 font-medium">{question.answer}</p>
                   </div>
                 </motion.div>
               )}

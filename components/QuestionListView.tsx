@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Search, ChevronRight, CheckCircle2, Circle, ChevronLeft, Plus, Edit2, Trash2, X, Settings, Sparkles } from 'lucide-react';
+import { Search, ChevronRight, CheckCircle2, Circle, ChevronLeft, Plus, Edit2, Trash2, X, Settings, Sparkles, Eye } from 'lucide-react';
 import { Question, Difficulty, QuestionCategory } from '@/types/types';
 import { useApp } from '@/context/AppProvider';
 
@@ -42,13 +42,10 @@ export default function QuestionListView() {
   const [qCategory, setQCategory] = useState('');
   const [qDifficulty, setQDifficulty] = useState<Difficulty>('Dễ');
   const [qTags, setQTags] = useState('');
-  const [qSuccessRate, setQSuccessRate] = useState(85);
-  const [qDesc, setQDesc] = useState('');
-  const [qRequirements, setQRequirements] = useState('');
-  const [qCodeSnippet, setQCodeSnippet] = useState('');
-  const [qSolOverview, setQSolOverview] = useState('');
-  const [qSolSteps, setQSolSteps] = useState('');
-  const [qSolCode, setQSolCode] = useState('');
+  const [qAnswer, setQAnswer] = useState('');
+
+  // Interactive Tooltip active state
+  const [activeTooltipId, setActiveTooltipId] = useState<string | null>(null);
 
   // Toggle difficulty checklist
   const handleDifficultyToggle = (difficulty: Difficulty) => {
@@ -78,9 +75,9 @@ export default function QuestionListView() {
       if (searchQuery.trim() !== '') {
         const query = searchQuery.toLowerCase();
         const matchesTitle = q.title.toLowerCase().includes(query);
-        const matchesTags = q.tags.some(t => t.toLowerCase().includes(query));
-        const matchesDesc = q.description.toLowerCase().includes(query);
-        if (!matchesTitle && !matchesTags && !matchesDesc) return false;
+        const matchesTags = q.tags.toLowerCase().includes(query);
+        const matchesAnswer = q.answer.toLowerCase().includes(query);
+        if (!matchesTitle && !matchesTags && !matchesAnswer) return false;
       }
       return true;
     });
@@ -113,13 +110,7 @@ export default function QuestionListView() {
     setQCategory(selectedCategory !== 'All' ? selectedCategory : (categoryNames[0] || 'Frontend'));
     setQDifficulty('Dễ');
     setQTags('React, Performance');
-    setQSuccessRate(85);
-    setQDesc('');
-    setQRequirements('Sử dụng React core Hook tối ưu.\nHạn chế tối đa hành vi re-render thừa thải.');
-    setQCodeSnippet('export default function Solution() {\n  // Viết code gợi ý của bạn ở đây\n}');
-    setQSolOverview('Tối ưu hóa hiệu năng bằng các hook như useMemo, useCallback hoặc React.memo để tránh re-render các thành phần không cần thiết.');
-    setQSolSteps('Bước 1: Nhận diện thành phần gây quá tải hoạt động.\nBước 2: Đắp bộ nhớ đệm useMemo hoặc useCallback cho callbacks.\nBước 3: Thực hiện kiểm định lại mức độ CPU sử dụng.');
-    setQSolCode('import { useMemo } from "react";\n\nexport default function Solution() {\n  const cachedData = useMemo(() => {\n    // Giải thuật tối ưu\n  }, []);\n  return <div>{cachedData}</div>;\n}');
+    setQAnswer('');
     setShowAddModal(true);
   };
 
@@ -130,20 +121,14 @@ export default function QuestionListView() {
     setQCode(q.code);
     setQCategory(q.category);
     setQDifficulty(q.difficulty);
-    setQTags(q.tags.join(', '));
-    setQSuccessRate(q.successRate);
-    setQDesc(q.description);
-    setQRequirements(q.requirements.join('\n'));
-    setQCodeSnippet(q.codeSnippet);
-    setQSolOverview(q.solution.overview);
-    setQSolSteps(q.solution.steps.join('\n'));
-    setQSolCode(q.solution.codeSnippet);
+    setQTags(q.tags);
+    setQAnswer(q.answer);
   };
 
   const submitAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!qTitle.trim() || !qDesc.trim()) {
-      showToast('Vui lòng nhập đầy đủ tiêu đề và mô tả câu hỏi!', 'error');
+    if (!qTitle.trim() || !qAnswer.trim()) {
+      showToast('Vui lòng nhập đầy đủ tiêu đề và đáp án!', 'error');
       return;
     }
     const newQ: Question = {
@@ -152,17 +137,9 @@ export default function QuestionListView() {
       title: qTitle.trim(),
       category: qCategory,
       difficulty: qDifficulty,
-      tags: qTags.split(',').map(t => t.trim()).filter(Boolean),
-      successRate: Number(qSuccessRate) || 85,
+      tags: qTags.trim(),
       completed: false,
-      description: qDesc.trim(),
-      requirements: qRequirements.split('\n').map(r => r.trim()).filter(Boolean),
-      codeSnippet: qCodeSnippet.trim(),
-      solution: {
-        overview: qSolOverview.trim() || 'Giải pháp tham khảo phỏng vấn tuyển dụng.',
-        steps: qSolSteps.split('\n').map(s => s.trim()).filter(Boolean),
-        codeSnippet: qSolCode.trim() || qCodeSnippet.trim()
-      }
+      answer: qAnswer.trim()
     };
     handleAddQuestion(newQ);
     showToast(`Đã thêm thành công câu hỏi mới "${qTitle.trim()}"!`, 'success');
@@ -172,8 +149,8 @@ export default function QuestionListView() {
   const submitEdit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingQuestion) return;
-    if (!qTitle.trim() || !qDesc.trim()) {
-      showToast('Vui lòng nhập đầy đủ tiêu đề và mô tả câu hỏi!', 'error');
+    if (!qTitle.trim() || !qAnswer.trim()) {
+      showToast('Vui lòng nhập đầy đủ tiêu đề và đáp án!', 'error');
       return;
     }
     const updatedQ: Question = {
@@ -182,16 +159,8 @@ export default function QuestionListView() {
       title: qTitle.trim(),
       category: qCategory,
       difficulty: qDifficulty,
-      tags: qTags.split(',').map(t => t.trim()).filter(Boolean),
-      successRate: Number(qSuccessRate) || 85,
-      description: qDesc.trim(),
-      requirements: qRequirements.split('\n').map(r => r.trim()).filter(Boolean),
-      codeSnippet: qCodeSnippet.trim(),
-      solution: {
-        overview: qSolOverview.trim() || 'Giải pháp tham khảo phỏng vấn tuyển dụng.',
-        steps: qSolSteps.split('\n').map(s => s.trim()).filter(Boolean),
-        codeSnippet: qSolCode.trim()
-      }
+      tags: qTags.trim(),
+      answer: qAnswer.trim()
     };
     handleEditQuestion(updatedQ);
     showToast(`Đã cập nhật câu hỏi "${qTitle.trim()}" thành công!`, 'success');
@@ -397,10 +366,10 @@ export default function QuestionListView() {
           {/* Table Header */}
           <div className="hidden md:grid grid-cols-12 px-6 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider select-none border-b border-slate-100 mb-1">
             <span className="col-span-1">STT</span>
-            <span className={isAdmin ? "col-span-4" : "col-span-1 border-slate-100 col-span-5"}>Tiêu đề câu hỏi / Chủ đề</span>
+            <span className={isAdmin ? "col-span-4" : "col-span-5"}>Tiêu đề câu hỏi / Chủ đề</span>
             <span className="col-span-2">Độ khó</span>
             <span className="col-span-2">Thẻ tags</span>
-            <span className={isAdmin ? "col-span-1 text-right" : "col-span-2 text-right"}>Độ tín nhiệm</span>
+            <span className={isAdmin ? "col-span-1 text-right" : "col-span-2 text-right"}>Hành động</span>
             {isAdmin && <span className="col-span-2 text-right">Quản lý</span>}
           </div>
 
@@ -435,20 +404,17 @@ export default function QuestionListView() {
                   'Khó': 'bg-rose-50 text-rose-700 border-rose-105'
                 }[q.difficulty];
 
-                const successColor = q.difficulty === 'Dễ' 
-                  ? 'bg-emerald-500' 
-                  : q.difficulty === 'Trung bình' 
-                    ? 'bg-amber-400' 
-                    : 'bg-rose-500';
-
+                const isTooltipActive = activeTooltipId === q.id;
                 return (
                   <div
                     key={q.id}
-                    className="bg-white border border-slate-200/80 rounded-2xl p-5 hover:border-brand-primary/65 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group"
+                    className={`bg-white border rounded-2xl p-5 hover:border-brand-primary/65 hover:shadow-lg transition-all duration-300 cursor-pointer group flex flex-col gap-4 ${
+                      isTooltipActive ? 'ring-2 ring-brand-primary/20 border-brand-primary/65' : 'border-slate-200/80'
+                    }`}
                     id={`question_item_${q.code}`}
-                    onClick={() => handleRowClick(q)}
+                    onClick={() => setActiveTooltipId(isTooltipActive ? null : q.id)}
                   >
-                    <div className="flex flex-col md:grid md:grid-cols-12 items-start md:items-center gap-4">
+                    <div className="flex flex-col md:grid md:grid-cols-12 items-start md:items-center gap-4 w-full">
                       
                       {/* Left: serial counter index */}
                       <div className="hidden md:block col-span-1 font-mono text-xs text-slate-400 select-none">
@@ -456,10 +422,10 @@ export default function QuestionListView() {
                       </div>
 
                       {/* Completed toggle checkbox & interactive Title */}
-                      <div className={isAdmin ? "col-span-4 flex items-start gap-3 w-full" : "col-span-5 flex items-start gap-3 w-full"}>
+                      <div className="col-span-5 flex items-start gap-3 w-full">
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // Avoid triggering route details modal
+                            e.stopPropagation(); // Avoid triggering details or tooltip toggle
                             handleToggleComplete(q.id);
                           }}
                           className="pt-0.5 text-slate-350 hover:text-emerald-500 transition-colors cursor-pointer rounded-full"
@@ -492,45 +458,66 @@ export default function QuestionListView() {
 
                       {/* Technology Chips */}
                       <div className="col-span-2 flex flex-wrap gap-1">
-                        {q.tags.map(tag => (
+                        {q.tags.split(',').map(t => t.trim()).filter(Boolean).map(tag => (
                           <span key={tag} className="text-[10px] font-bold text-slate-550 border-slate-100 text-slate-500 bg-slate-50 px-2 py-0.5 rounded border">
                             {tag}
                           </span>
                         ))}
                       </div>
 
-                      {/* Right: success statistics progress indicators */}
-                      <div className={isAdmin ? "col-span-1 text-right w-full md:w-auto flex md:flex-col items-center md:items-end justify-between md:justify-center gap-1 font-medium select-none" : "col-span-2 text-right w-full md:w-auto flex md:flex-col items-center md:items-end justify-between md:justify-center gap-1 font-medium select-none"}>
-                        <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider md:hidden">Khả năng đỗ</span>
-                        <div className="flex flex-col items-end">
-                          <span className="text-xs font-semibold text-slate-700 font-mono">{q.successRate}%</span>
-                          <div className="w-20 bg-slate-100 h-1 rounded-full overflow-hidden mt-1">
-                            <div className={`h-full ${successColor}`} style={{ width: `${q.successRate}%` }}></div>
-                          </div>
-                        </div>
+                      {/* Right: Actions / Management (Details + Admin tools if admin) */}
+                      <div className="col-span-2 flex items-center justify-end gap-1.5 w-full md:w-auto" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(q);
+                          }}
+                          className="p-1.5 bg-slate-50 hover:bg-brand-primary hover:text-white rounded-lg text-slate-500 hover:border-brand-primary/50 transition-all border border-slate-200 shadow-sm cursor-pointer"
+                          title="Xem chi tiết câu hỏi"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        
+                        {isAdmin && (
+                          <>
+                            <button
+                              onClick={(e) => handleOpenEdit(q, e)}
+                              title="Chỉnh sửa câu hỏi"
+                              className="p-1.5 bg-slate-50 hover:bg-sky-50 rounded-lg text-slate-500 hover:text-sky-600 border border-slate-200 hover:border-sky-100 transition-colors cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={(e) => handleDelete(q.id, q.title, e)}
+                              title="Xóa câu hỏi"
+                              className="p-1.5 bg-slate-50 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 border border-slate-200 border-rose-100/10 hover:border-rose-100 transition-colors cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                       </div>
 
-                      {/* Explicit Administrative Editing Tools (Add, Edit, Delete) */}
-                      {isAdmin && (
-                        <div className="col-span-2 flex items-center justify-end gap-1.5 w-full md:w-auto" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={(e) => handleOpenEdit(q, e)}
-                            title="Chỉnh sửa câu hỏi"
-                            className="p-1.5 bg-slate-50 hover:bg-sky-50 rounded-lg text-slate-500 hover:text-sky-600 border border-slate-200 hover:border-sky-100 transition-colors cursor-pointer"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={(e) => handleDelete(q.id, q.title, e)}
-                            title="Xóa câu hỏi"
-                            className="p-1.5 bg-slate-50 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 border border-slate-200 border-rose-100/10 hover:border-rose-100 transition-colors cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-
                     </div>
+
+                    {/* Quick Answer Tooltip/Popover Container */}
+                    {isTooltipActive && (
+                      <div 
+                        className="w-full mt-2 p-5 bg-white text-slate-800 rounded-xl relative border border-slate-200 shadow-xl cursor-default animate-fade-in text-left"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {/* Up pointing arrow */}
+                        <div className="absolute -top-1.5 left-20 w-3 h-3 bg-white border-t border-l border-slate-200 rotate-45" />
+                        
+                        <div className="flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-slate-400 select-none">
+                          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+                          <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500">Đáp án ôn luyện nhanh</span>
+                        </div>
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-700 font-medium">
+                          {q.answer}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -602,13 +589,13 @@ export default function QuestionListView() {
                     placeholder="Ví dụ: FE-05"
                     value={qCode}
                     onChange={(e) => setQCode(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 py-2.5 px-3.5 text-xs font-and-mono rounded-xl text-slate-800 focus:outline-brand-primary"
+                    className="w-full bg-slate-50 border border-slate-200 py-2.5 px-3.5 text-xs font-mono rounded-xl text-slate-800 focus:outline-brand-primary"
                   />
                 </div>
 
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Chủ đề (Category)</label>
@@ -636,19 +623,6 @@ export default function QuestionListView() {
                   </select>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Độ tín nhiệm / Khả năng đậu (%)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    placeholder="85"
-                    value={qSuccessRate}
-                    onChange={(e) => setQSuccessRate(parseInt(e.target.value) || 85)}
-                    className="w-full bg-slate-50 border border-slate-200 py-2.5 px-3.5 text-xs font-medium rounded-xl text-slate-800 focus:outline-brand-primary"
-                  />
-                </div>
-
               </div>
 
               <div className="space-y-1">
@@ -663,76 +637,15 @@ export default function QuestionListView() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Yêu cầu & Mô tả vấn đề kịch bản</label>
+                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Đáp án bài tập phỏng vấn</label>
                 <textarea
                   required
-                  placeholder="Nhập chi tiết yêu cầu bài tập phỏng vấn..."
-                  value={qDesc}
-                  onChange={(e) => setQDesc(e.target.value)}
-                  rows={2}
-                  className="w-full bg-slate-50 border border-slate-200 p-3 text-xs font-medium rounded-xl text-slate-800 focus:outline-brand-primary"
+                  placeholder="Nhập chi tiết đáp án cho câu hỏi..."
+                  value={qAnswer}
+                  onChange={(e) => setQAnswer(e.target.value)}
+                  rows={6}
+                  className="w-full bg-slate-50 border border-slate-200 p-3 font-mono text-xs rounded-xl text-slate-805 text-slate-800 focus:outline-brand-primary"
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Yêu cầu nghiệp vụ (Ngắt dòng cho từng ý)</label>
-                <textarea
-                  placeholder="Hàm phải xử lý tối ưu O(1) bộ nhớ&#10;Kiểm tra các biên dữ liệu đầu vào"
-                  value={qRequirements}
-                  onChange={(e) => setQRequirements(e.target.value)}
-                  rows={2}
-                  className="w-full bg-slate-50 border border-slate-200 p-3 text-xs font-medium rounded-xl text-slate-800 focus:outline-brand-primary"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wide">Mã mẫu / Khung sườn ban đầu (Code Snippet)</label>
-                <textarea
-                  placeholder="function process(data) { ... }"
-                  value={qCodeSnippet}
-                  onChange={(e) => setQCodeSnippet(e.target.value)}
-                  rows={3}
-                  className="w-full bg-slate-50 border border-slate-200 p-3 font-mono text-xs rounded-xl text-slate-800 focus:outline-brand-primary"
-                />
-              </div>
-
-              <div className="border-t border-slate-100 pt-3 mt-4 space-y-3">
-                <span className="text-xs font-extrabold text-sky-600 flex items-center gap-1">
-                  <Sparkles className="w-4 h-4 text-amber-500" /> Kịch bản giải mẫu chuyên nghiệp & tối ưu
-                </span>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-750 text-slate-600 uppercase tracking-wide">Bình luận phân tích (Solution Overview)</label>
-                  <textarea
-                    placeholder="Giải pháp sử dụng bộ nhớ đệm giúp ngăn re-render dư thừa..."
-                    value={qSolOverview}
-                    onChange={(e) => setQSolOverview(e.target.value)}
-                    rows={2}
-                    className="w-full bg-slate-50 border border-slate-205 border-slate-200 p-3 text-xs font-medium rounded-xl text-slate-800 focus:outline-brand-primary"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-750 text-slate-600 uppercase tracking-wide">Các bước thực thi (Giải thuật ngắt dòng)</label>
-                  <textarea
-                    placeholder="Bước 1: Khởi tạo cache key&#10;Bước 2: So sánh logic kết quả"
-                    value={qSolSteps}
-                    onChange={(e) => setQSolSteps(e.target.value)}
-                    rows={2}
-                    className="w-full bg-slate-50 border border-slate-205 border-slate-200 p-3 text-xs font-medium rounded-xl text-slate-800 focus:outline-brand-primary"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-750 text-slate-600 uppercase tracking-wide">Mã nguồn giải mẫu tối ưu (Solution Code)</label>
-                  <textarea
-                    placeholder="function process(data) { return Math.max(...data); }"
-                    value={qSolCode}
-                    onChange={(e) => setQSolCode(e.target.value)}
-                    rows={3}
-                    className="w-full bg-slate-50 border border-slate-205 border-slate-200 p-3 font-mono text-xs rounded-xl text-slate-800 focus:outline-brand-primary"
-                  />
-                </div>
               </div>
 
               <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100">

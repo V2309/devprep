@@ -6,329 +6,80 @@ export const INITIAL_QUESTIONS: Question[] = [
     code: '001',
     title: 'Giải thích cơ chế Virtual DOM trong React',
     difficulty: 'Dễ',
-    tags: ['React', 'JS'],
-    successRate: 87,
+    tags: 'React, JS',
     completed: true,
     category: 'Frontend',
-    description: 'React được biết đến với hiệu suất cực cao nhờ cơ sở hạ tầng Virtual DOM. Hãy giải thích chi tiết cơ chế này hoạt động như thế nào, tại sao nó lại nhanh hơn việc cập nhật Real DOM trực tiếp và cách React tối ưu hóa tài nguyên.',
-    requirements: [
-      'Virtual DOM thực chất là gì dưới lăng kính JavaScript?',
-      'Quy trình Reconciliation (Đối soát) và giải thuật Diffing.',
-      'Sự khác biệt cốt lõi giữa Virtual DOM, Real DOM và Shadow DOM.',
-      'Ưu điểm về mặt hiệu suất trong các ứng dụng có cấu trúc cây phức tạp.'
-    ],
-    codeSnippet: `// Một React component đơn giản
-function Welcome() {
-  return (
-    <div>
-      <h1>Xin chào!</h1>
-      <p>Đây là một ví dụ về Virtual DOM.</p>
-    </div>
-  );
-}`,
-    solution: {
-      overview: 'Virtual DOM là một bản sao gọn nhẹ (lightweight blueprint) của Real DOM được lưu giữ dưới dạng JavaScript Object trong bộ nhớ RAM. Khi trạng thái (state) thay đổi:',
-      steps: [
-        'Render: React kích hoạt việc tạo lập một cây Virtual DOM mới tinh để đại diện cho giao diện vừa cập nhật.',
-        'Diffing: Đối chiếu cây Virtual DOM mới này với cây Virtual DOM cũ bằng giải thuật O(n) cực kỳ thông minh để bóc tách những điểm khác biệt chính xác.',
-        'Patching: Chỉ tiến hành apply (vết mổ) chuẩn xác những phần thực sự thay đổi lên cây Real DOM ngoài màn hình.'
-      ],
-      codeSnippet: `// Minh họa cách React biểu diễn một node Virtual DOM trong RAM:
-const oldElement = { 
-  type: 'h1', 
-  props: { 
-    className: 'title', 
-    children: 'Hello' 
-  } 
-};
-
-const newElement = { 
-  type: 'h1', 
-  props: { 
-    className: 'title', 
-    children: 'Hi' 
-  } 
-};
-
-// React diffing thuật toán nhanh chóng phát hiện ra text thay đổi từ 'Hello' thành 'Hi'
-// Và ra lệnh cập nhật cục bộ textNode (đỡ tốn 100x hiệu năng so với dựng lại h1)`
-    }
+    answer: 'Virtual DOM là một bản sao gọn nhẹ (lightweight blueprint) của Real DOM dưới dạng JavaScript Object trong RAM. Khi state thay đổi, React sẽ tạo một cây Virtual DOM mới, so sánh với cây Virtual DOM cũ bằng giải thuật Diffing để tìm ra sự khác biệt, sau đó chỉ cập nhật (patching) các phần thực sự thay đổi lên Real DOM, tránh việc re-render toàn bộ DOM giúp tăng hiệu năng rõ rệt.'
   },
   {
     id: '2',
     code: '002',
     title: 'Sự khác biệt giữa Flexbox và Grid Layout',
     difficulty: 'Trung bình',
-    tags: ['CSS'],
-    successRate: 62,
+    tags: 'CSS',
     completed: false,
     category: 'Frontend',
-    description: 'Flexbox và CSS Grid Layout đều là các công cụ layout cực kỳ mạnh mẽ trong CSS hiện đại. Trình bày rõ ràng khi nào nên chọn dùng Flexbox thay vì Grid và ngược lại.',
-    requirements: [
-      'Khái niệm phân bố một chiều (1D) vs hai chiều (2D).',
-      'Cách căn chỉnh phần tử con linh hoạt theo trục chính/trực phụ.',
-      'Thiết kế dạng lưới bento phức tạp.'
-    ],
-    codeSnippet: `/* Ví dụ Flexbox */
-.container-flex {
-  display: flex;
-  justify-content: space-between;
-}
-
-/* Ví dụ Grid */
-.container-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-}`,
-    solution: {
-      overview: 'Flexbox là hệ thống bố cục một chiều (phù hợp cho các hàng dọc hoặc hàng ngang biệt lập), trong khi Grid là hệ thống bố cục hai chiều hoàn mỹ (quản lý đồng thời cả hàng lẫn cột).',
-      steps: [
-        'Chọn Flexbox khi: Thiết kế thanh điều hướng, các nhóm nút, căn giữa item đơn lẻ hay các luồng phân phối dọc nằm ngang.',
-        'Chọn Grid khi: Xây dựng toàn bộ khung sườn trang website, các bố cục Bento Card phức tạp, thư viện ảnh đa dạng tỷ lệ.'
-      ],
-      codeSnippet: `/* Layout phức tạp tối ưu bento */
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(150px, auto);
-}`
-    }
+    answer: 'Flexbox là hệ thống bố cục một chiều (1D) dọc hoặc ngang, thích hợp cho việc căn chỉnh các phần tử con linh hoạt theo trục chính/trực phụ (ví dụ: navbar, nhóm nút). Grid là hệ thống bố cục hai chiều (2D) quản lý đồng thời cả hàng lẫn cột, lý tưởng cho các thiết kế lưới phức tạp như layout Bento Card hoặc toàn bộ khung sườn trang web.'
   },
   {
     id: '3',
     code: '003',
     title: 'Tối ưu hiệu suất bằng React.memo và useMemo',
     difficulty: 'Khó',
-    tags: ['React', 'JS'],
-    successRate: 45,
+    tags: 'React, JS',
     completed: true,
     category: 'Frontend',
-    description: 'Trình bày cách thức hoạt động của React.memo, useMemo và useCallback để ngăn ngừa vòng lặp lãng phí kết xuất (wasteful re-renders).',
-    requirements: [
-      'Giải thích cơ chế Shallow Comparison trong React.',
-      'Sự khác biệt lớn giữa useMemo và useCallback.',
-      'Những trường hợp lạm dụng gây suy giảm hiệu năng.'
-    ],
-    codeSnippet: `import { useState, useMemo } from 'react';
-
-function Calculator() {
-  const [count, setCount] = useState(0);
-  // Việc tính toán đắt đỏ này chạy lại mỗi khi component re-render
-  const answer = performHeavyMath();
-}`,
-    solution: {
-      overview: 'useMemo dùng để cache kết quả của một phép tính đắt đỏ, trong khi useCallback cache chính instance của hàm khai báo để tránh đổi tham chiếu.',
-      steps: [
-        'React.memo so sánh nông props của component nhận vào.',
-        'React chỉ chạy phép tính nặng bên trong useMemo khi mảng dependency thay đổi giá trị.'
-      ],
-      codeSnippet: `// Giải pháp tối ưu với useMemo
-const memoizedAnswer = useMemo(() => {
-  return performHeavyMath(count);
-}, [count]); // Chỉ tính lại khi count thực sự thay đổi`
-    }
+    answer: 'useMemo dùng để cache kết quả của các phép tính phức tạp (chỉ tính lại khi dependency thay đổi). useCallback dùng để cache chính hàm callback để giữ nguyên tham chiếu giữa các lần render. React.memo là Higher-Order Component dùng để bọc component con, thực hiện so sánh nông (shallow comparison) các props nhận vào để tránh re-render thừa khi props không đổi.'
   },
   {
     id: '4',
     code: '004',
     title: 'Closures và Scope Chain trong JavaScript',
     difficulty: 'Trung bình',
-    tags: ['JS'],
-    successRate: 58,
+    tags: 'JS',
     completed: false,
     category: 'Frontend',
-    description: 'Closure là một trong những khái niệm quan trọng nhất của JavaScript. Hãy giải thích cách nó cho phép một hàm ghi nhớ phạm vi khai sinh của nó ngay cả khi đã thực thi xong.',
-    requirements: [
-      'Phạm vi từ vựng (Lexical Scoping).',
-      'Ứng dụng closure để đóng gói dữ liệu (private variables).',
-      'Quản lý bộ nhớ rác (Garbage Collection) liên quan.'
-    ],
-    codeSnippet: `function initCounter() {
-  let count = 0;
-  return function() {
-    count++;
-    return count;
-  };
-}
-const next = initCounter();`,
-    solution: {
-      overview: 'Closure là sự kết hợp giữa một hàm và môi trường từ vựng chứa nó. Nó giữ lại tham chiếu tới biến ngoài phạm vi thực thi ngay cả sau khi hàm cha đã kết thúc.',
-      steps: [
-        'Môi trường từ vựng (lexical environment) được giữ lại trong bộ nhớ heap nhờ tham chiếu sống.',
-        'Rất hữu dụng để mô phỏng thuộc tính "private" trong OOP mà JS cũ không có.'
-      ],
-      codeSnippet: `// Ứng dụng Encapsulation
-const database = (() => {
-  let records = []; // Biến bí mật, bên ngoài không thể truy cập trực tiếp
-  return {
-    add: (rec) => records.push(rec),
-    get: () => [...records]
-  };
-})();`
-    }
+    answer: 'Closure là khả năng của một hàm ghi nhớ và truy cập vào phạm vi từ vựng (lexical scope) của nó ngay cả khi hàm đó được thực thi bên ngoài phạm vi từ vựng đó. Nó hoạt động bằng cách giữ lại tham chiếu đến môi trường cha trong bộ nhớ heap, thường được ứng dụng để tạo biến riêng tư (private variables) hoặc đóng gói logic.'
   },
   {
     id: '5',
     code: '005',
     title: 'Implement Custom Hook useLocalStorage',
     difficulty: 'Khó',
-    tags: ['React', 'Hooks'],
-    successRate: 31,
+    tags: 'React, Hooks',
     completed: false,
     category: 'Frontend',
-    description: 'Viết một Custom React Hook hoàn chỉnh có tên useLocalStorage để đồng bộ hóa trạng thái state của React với localStorage của trình duyệt, hỗ trợ xử lý lỗi ngoại lệ.',
-    requirements: [
-      'Tương tác an toàn với server-side rendering (SSR), kiểm định window tồn tại.',
-      'Hỗ trợ cập nhật trạng thái bằng hàm callback tương tự useState thông thường.',
-      'Đồng bộ hóa dữ liệu JSON an toàn.'
-    ],
-    codeSnippet: `// Cách sử dụng kỳ vọng
-const [theme, setTheme] = useLocalStorage('theme', 'dark');`,
-    solution: {
-      overview: 'Để tạo một custom hook lưu trữ an toàn, ta cần bọc thao tác đọc/ghi trong khối try-catch và kiểm tra xem biến window có tồn tại hay không (đề phòng SSR).',
-      steps: [
-        'Đọc giá trị ban đầu từ localStorage, nếu không tồn tại hoặc lỗi thì sử dụng initialValue.',
-        'Trả về một State nội bộ của React kèm theo hàm Setter viết đè bảo đảm cập nhật cả React State lẫn Browser LocalStorage.'
-      ],
-      codeSnippet: `import { useState } from 'react';
-
-export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      if (typeof window === 'undefined') return initialValue;
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.warn("Lỗi đọc localStorage: ", error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      console.error("Lỗi ghi localStorage: ", error);
-    }
-  };
-
-  return [storedValue, setValue] as const;
-}`
-    }
+    answer: 'useLocalStorage là custom hook giúp đồng bộ state của React với localStorage. Khi khởi tạo, hook kiểm tra xem window có tồn tại (để tương thích SSR) và đọc dữ liệu từ localStorage qua JSON.parse. Khi cập nhật state, nó sẽ lưu dữ liệu đã được JSON.stringify vào localStorage và cập nhật React State, bọc các thao tác trong try-catch để bắt lỗi ngoại lệ.'
   },
   {
     id: '6',
     code: '006',
     title: 'Đảo ngược một Danh Sách Liên Kết Đơn (Reverse a Linked List)',
     difficulty: 'Trung bình',
-    tags: ['Algorithms', 'Python'],
-    successRate: 71,
+    tags: 'Algorithms, Python',
     completed: false,
     category: 'Cấu trúc dữ liệu & Giải thuật',
-    description: 'Việt hóa thuật toán đảo ngược Linked List kinh điển. Cho đầu vào là một con trỏ List Node, hãy sắp đặt lại các hướng con trỏ liên kết kế tiếp để tạo ra một danh sách liên kết đảo chiều hoàn toàn.',
-    requirements: [
-      'Phương pháp tiếp cận con trỏ kép (Iterative approach với prev, curr, next).',
-      'Độ phức tạp thời gian O(N) và bộ nhớ bổ sung O(1).',
-      'Phương pháp đệ quy (Recursive approach).'
-    ],
-    codeSnippet: `class ListNode:
-    def __init__(self, val=0, next=None):
-        self.val = val
-        self.next = next`,
-    solution: {
-      overview: 'Sử dụng ba biến con trỏ chạy tịnh tiến: trước (prev), hiện tại (curr) và kế tiếp (next). Tại mỗi bước lặp, ta bẻ chiều trỏ tiếp của curr lùi về prev, sau đó gán dịch chuyển prev và curr tiến lên phía trước.',
-      steps: [
-        'Khởi tạo prev = null, curr = head.',
-        'Lặp khi curr khác null: Lưu biến tempNext = curr.next, bẻ hướng trỏ curr.next = prev, dịch prev = curr, curr = tempNext.',
-        'Trả về prev chính là node đầu mới.'
-      ],
-      codeSnippet: `def reverseList(head: ListNode) -> ListNode:
-    prev = None
-    curr = head
-    while curr:
-        nxt = curr.next
-        curr.next = prev
-        prev = curr
-        curr = nxt
-    return prev`
-    }
+    answer: 'Để đảo ngược một Linked List đơn bằng phương pháp lặp, ta sử dụng 3 con trỏ: prev (trước), curr (hiện tại) và nxt (kế tiếp). Lặp qua danh sách: lưu nxt = curr.next, bẻ hướng con trỏ curr.next = prev, dịch prev = curr và curr = nxt. Khi kết thúc, prev sẽ trỏ vào node đầu mới của danh sách đã đảo ngược.'
   },
   {
     id: '7',
     code: '007',
     title: 'Thiết kế hệ thống Rate Limiter cho Chat App quy mô lớn',
     difficulty: 'Khó',
-    tags: ['System Design', 'Redis'],
-    successRate: 22,
+    tags: 'System Design, Redis',
     completed: false,
     category: 'System Design',
-    description: 'Tìm kiếm phương cách kiểm soát lưu lượng gọi API từ người dùng tránh tấn công DDOS hoặc Spam tin nhắn trong ứng dụng chat phân tán triệu người dùng đồng thời.',
-    requirements: [
-      'Thuật toán Token Bucket và Leaky Bucket.',
-      'Sử dụng Redis Cluster lưu trữ phân tán hiệu năng siêu tốc.',
-      'Quản lý race-condition bằng Lua Script trong Redis.'
-    ],
-    codeSnippet: `// Mock API request
-async function chatApiGateway(req, res) {
-  const userId = req.headers['x-user-id'];
-  // Cần cơ chế check giới hạn cuộc gọi ở đây
-}`,
-    solution: {
-      overview: 'Hệ thống dùng Redis để thực thi thuật toán Token Bucket. Mỗi người dùng được cấp một hòm khóa chứa tối đa X tokens, hồi phục theo chu kỳ T giây. Mỗi request tiêu tốn 1 token.',
-      steps: [
-        'Sử dụng Redis Key cấu trúc rate_limit:user_id lưu trữ số lượng token và dấu thời gian cập nhật gần nhất.',
-        'Dùng Lua Script để thực hiện thao tác Đọc - Ghi nguyên tử (atomic) tránh xung đột đồng thời.'
-      ],
-      codeSnippet: `-- Redis Lua Script an toàn race-condition:
-local key = KEYS[1]
-local limit = tonumber(ARGV[1])
-local current = tonumber(redis.call('get', key) or "0")
-if current + 1 > limit then
-  return 0
-else
-  redis.call("INCRBY", key, 1)
-  redis.call("EXPIRE", key, 10)
-  return 1
-end`
-    }
+    answer: 'Hệ thống sử dụng Redis để lưu trữ phân tán và thực hiện thuật toán Token Bucket. Mỗi user_id được cấp một key lưu số token khả dụng và timestamp cập nhật cuối cùng. Khi có request, ta sử dụng Lua Script trong Redis để thực hiện các thao tác đọc và ghi một cách nguyên tử (atomic), giúp phòng ngừa race-condition ở quy mô tải cực lớn.'
   },
   {
     id: '8',
     code: '008',
     title: 'Xây dựng cơ chế xác thực bảo mật JWT và cơ chế Refresh Token',
     difficulty: 'Trung bình',
-    tags: ['Node.js', 'Security'],
-    successRate: 55,
+    tags: 'Node.js, Security',
     completed: false,
     category: 'Backend',
-    description: 'Thiết kế hệ thống đăng nhập bảo mật trong Web App. Giải thích vòng đời của Access Token (ngắn hạn) và Refresh Token (dài hạn) để cân bằng giữa bảo mật mạnh mẽ và trải nghiệm người dùng.',
-    requirements: [
-      'Cấu trúc 3 phần của JSON Web Token (Header, Payload, Signature).',
-      'Chiến lược phòng chống rò rỉ Token (XSS, CSRF attacks).',
-      'Thiết lập rotation cho Refresh Token để vô hiệu hóa hacker.'
-    ],
-    codeSnippet: `const jwt = require('jsonwebtoken');
-
-function generateAccessToken(user) {
-  return jwt.sign({ id: user.id }, process.env.ACCESS_SECRET, { expiresIn: '15m' });
-}`,
-    solution: {
-      overview: 'Hệ thống lưu Refresh Token trong HttpOnly Cookie để chống khai thác từ mã độc JavaScript (XSS), còn Access Token lưu trữ ở bộ nhớ RAM của ứng dụng.',
-      steps: [
-        'User gửi credentials -> Server cấp Access Token (15 phút) và Refresh Token (7 ngày) lưu HttpOnly.',
-        'Client hết hạn Access Token sẽ tự động gọi API /api/refresh mang theo Cookie để gia hạn mà không cần bắt người dùng đăng nhập lại.'
-      ],
-      codeSnippet: `// Tránh tấn công Replay Attack bằng Refresh Token Rotation:
-app.post('/api/refresh', async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  // Kiểm tra Refresh Token trong DB, nếu đã sử dụng từ trước -> nghi ngờ hacker -> thu hồi ngay lập tức toàn bộ phiên đăng nhập của người dùng này!
-});`
-    }
+    answer: 'Cơ chế xác thực sử dụng cặp token: Access Token (ngắn hạn, ví dụ 15 phút, lưu trong RAM/State để gọi API nhanh) và Refresh Token (dài hạn, ví dụ 7 ngày, lưu trong HttpOnly Cookie để chống XSS). Khi Access Token hết hạn, Client tự động gọi API gia hạn bằng Refresh Token. Đồng thời áp dụng cơ chế Refresh Token Rotation để thu hồi toàn bộ phiên đăng nhập nếu phát hiện replay attack.'
   }
 ];
 

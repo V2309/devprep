@@ -17,6 +17,7 @@ interface HeaderProps {
 
 const navItems = [
   { label: 'Trang Chủ', href: '/', key: 'Topics' },
+  { label: 'Chủ Đề', href: '/categories', key: 'Categories' },
   { label: 'Thư Viện', href: '/questions', key: 'Questions' },
   { label: 'Bảng Cá Nhân', href: '/dashboard', key: 'Dashboard' },
 ] as const;
@@ -87,7 +88,7 @@ export default function Header({
                   }`}
                   id={`nav_link_${item.key.toLowerCase()}`}
                 >
-                  {item.key}
+                  {item.label}
                   {isActive && (
                     <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-brand-primary rounded-full" />
                   )}

@@ -14,9 +14,11 @@ interface ToastState {
 
 interface AppContextValue {
   questions: Question[];
+  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
   selectedCategory: QuestionCategory | 'All';
   setSelectedCategory: (category: QuestionCategory | 'All') => void;
   categories: Category[];
+  setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   isLoggedIn: boolean;
@@ -218,9 +220,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppContextValue = {
     questions,
+    setQuestions,
     selectedCategory,
     setSelectedCategory,
     categories,
+    setCategories,
     searchQuery,
     setSearchQuery,
     isLoggedIn,

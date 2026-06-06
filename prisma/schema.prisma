@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Category {
+  name        String     @id @unique
+  description String?
+  techTags    String // Comma-separated tech tags
+  questions   Question[]
+}
+
+model Question {
+  id           String   @id @default(uuid())
+  code         String   @unique
+  title        String
+  difficulty   String // "Dễ" | "Trung bình" | "Khó"
+  tags         String // Comma-separated tags
+  answer       String
+  completed    Boolean  @default(false)
+  categoryName String
+  category     Category @relation(fields: [categoryName], references: [name], onDelete: Cascade)
+}

@@ -9,19 +9,11 @@ export interface Question {
   id: string;
   code: string;
   title: string;
-  difficulty: Difficulty;
-  tags: string[];
-  successRate: number;
-  completed: boolean;
   category: QuestionCategory;
-  description: string;
-  requirements: string[];
-  codeSnippet: string;
-  solution: {
-    overview: string;
-    steps: string[];
-    codeSnippet: string;
-  };
+  difficulty: Difficulty;
+  tags: string;
+  answer: string;
+  completed: boolean;
 }
 
 export interface Comment {
